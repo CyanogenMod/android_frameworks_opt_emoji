@@ -87,11 +87,15 @@ class EmojiFactory {
 
   // Get a specific implementation of EmojiFactory. If there's no implementation
   // for "name", returns NULL.
+  // The ownership of the instance remains to this class, so users must not
+  // release it.
   static EmojiFactory *GetImplementation(const char *name);
 
   // Get an implementation of EmojiFactory. This assumes that, usually, there
   // should be only one possible EmojiFactory implementation. If there are more
   // than one implementations, most prefered one is returned.
+  // The ownership of the instance remains to this class, so users must not
+  // release it.
   static EmojiFactory *GetAvailableImplementation();
 };
 
