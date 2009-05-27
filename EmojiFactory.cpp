@@ -36,7 +36,7 @@ static Vector<void *> *g_handles = NULL;
 
 class EmojiFactoryManager {
  public:
-  void init();
+  void Init();
   virtual ~EmojiFactoryManager();
  private:
   void TryRegisterEmojiFactory(const char *library_name);
@@ -49,7 +49,7 @@ class EmojiFactoryManager {
 // fully ready (see AndroidRunitem.cpp and app_main.cpp).
 // So, instead of doing this in constructor, I decided this shoud be done
 // when a user requires to EmojiFactory, which makes better sense to me.
-void EmojiFactoryManager::init() {
+void EmojiFactoryManager::Init() {
   g_handles = new Vector<void *>();
   g_factories = new Vector<EmojiFactory *>();
 
@@ -74,16 +74,22 @@ void EmojiFactoryManager::init() {
 
 void EmojiFactoryManager::TryRegisterEmojiFactory(const char *library_name) {
   void *handle = dlopen(library_name, RTLD_LAZY | RTLD_LOCAL);
-  const char* error_str = dlerror();
-  if (error_str) {
+  if (handle == NULL) {
+    const char* error_str = dlerror();
+    if (error_str) {
+      error_str = "Unknown reason";
+    }
     LOGE("Failed to load shared library %s: %s", library_name, error_str);
     return;
   }
   EmojiFactory *(*get_emoji_factory)() =
       reinterpret_cast<EmojiFactory *(*)()>(dlsym(handle,
                                                   "GetEmojiFactory"));
-  error_str = dlerror();
-  if (error_str) {
+  if (get_emoji_factory == NULL) {
+    const char* error_str = dlerror();
+    if (error_str) {
+      error_str = "Unknown reason";
+    }
     LOGE("Failed to call GetEmojiFactory: %s", error_str);
     dlclose(handle);
     return;
@@ -112,7 +118,6 @@ void EmojiFactoryManager::TryRegisterEmojiFactory(const char *library_name) {
   // dlclose() must not be called here, since returned factory may point to
   // static data in the shared library (like "static const char* = "emoji";")
   g_handles->push(handle);
-  // LOGD("successufl: %s", library_name); // to delete
 }
 
 EmojiFactoryManager::~EmojiFactoryManager() {
@@ -136,7 +141,7 @@ EmojiFactoryManager::~EmojiFactoryManager() {
 static EmojiFactoryManager g_registrar;
 
 static void InitializeEmojiFactory() {
-  g_registrar.init();
+  g_registrar.Init();
 }
 
 /* static */
@@ -159,7 +164,6 @@ EmojiFactory *EmojiFactory::GetImplementation(const char *name) {
 EmojiFactory *EmojiFactory::GetAvailableImplementation() {
   pthread_once(&g_once, InitializeEmojiFactory);
   size_t size = g_factories->size();
-  // LOGD("size: %d", size); // to delete
   for (size_t i = 0; i < size; ++i) {
     EmojiFactory *factory = g_factories->itemAt(i);
     return factory;
@@ -169,9 +173,6 @@ EmojiFactory *EmojiFactory::GetAvailableImplementation() {
 
 }  // namespace android
 
-/*
-// These ware for dlopen(). However, bionic libc does not allow dlopen() in
-// dlopen() context. That means this library cannot be dlopen()-ed.
 extern "C" android::EmojiFactory *GetImplementation(
     const char *name) {
   return android::EmojiFactory::GetImplementation(name);
@@ -180,4 +181,3 @@ extern "C" android::EmojiFactory *GetImplementation(
 extern "C" android::EmojiFactory *GetAvailableImplementation() {
   return android::EmojiFactory::GetAvailableImplementation();
 }
-*/
