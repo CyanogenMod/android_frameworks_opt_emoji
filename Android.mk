@@ -17,6 +17,8 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := EmojiFactory.cpp
 
+LOCAL_MODULE_TAGS := optional
+
 LOCAL_MODULE := libemoji
 
 LOCAL_SHARED_LIBRARIES := \
