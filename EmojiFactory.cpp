@@ -55,7 +55,7 @@ void EmojiFactoryManager::Init() {
 
   char *emoji_libraries = new char[PROPERTY_VALUE_MAX];
   int len = property_get("ro.config.libemoji", emoji_libraries, "");
-  // LOGD("ro.config.libemoji: %s", emoji_libraries);
+  // ALOGD("ro.config.libemoji: %s", emoji_libraries);
   if (len > 0) {
     char *saveptr, *ptr;
     ptr = emoji_libraries;
