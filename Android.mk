@@ -24,6 +24,7 @@ LOCAL_MODULE := libemoji
 LOCAL_SHARED_LIBRARIES := \
 	libcutils \
 	libutils \
+	liblog \
 	libdl
 
 LOCAL_CFLAGS += -Wall -Werror
