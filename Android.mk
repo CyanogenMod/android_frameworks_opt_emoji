@@ -29,8 +29,6 @@ LOCAL_SHARED_LIBRARIES := \
 
 LOCAL_CFLAGS += -Wall -Werror
 
-LOCAL_LDLIBS += -lpthread
-
 LOCAL_C_INCLUDES += \
 	$(base)/include/utils
 
